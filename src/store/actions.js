@@ -189,23 +189,64 @@ export default {
           }
         })
       },
-      saveSite(store,siteObj){
-        return http.post(api.host+'/sites',siteObj)
-        .then(res =>{
-          if(res.data.id>0){
-            http.patch(api.host+'/users/'+store.state.user.id,{
-              selectSite:res.data
+      // 保存地址对象
+  saveSite (store, siteObj) {
+    // 先将地址对象存储到数据库，并返回在数据库中的id
+    return http.post(api.host + '/sites', siteObj)
+      .then(res => {
+        // 通过判断返回的结果是否包含id来判断是否存储成功
+        if (res.data.id > 0) {
+          // 更改用户当前所选地址
+          http.patch(api.host + '/users/' + store.state.user.id, {
+            selectSite: res.data
+          })
+            .then(res => {
+              // 更新本地user对象
+              store.commit('UPDATA_USER', res.data)
             })
-            .then(res=>{
-              store.commit('UPDATA_USER',res.data)
-            })
-            store.commit('SAVE_SITE',res.data)
-            return {'msg':'添加成功'}
-          }else{
-            return {'msg':'添加失败'}
-          }
-        })
-      },
+          // 保存到vuex中
+          store.commit('SAVE_SITE', res.data)
+          return {'msg': '添加成功'}
+        } else {
+          return {'msg': '添加失败'}
+        }
+      })
+  },
+  // 更改所选的地址
+  changeSelectedSite (store, siteObj) {
+    
+    // 更改用户当前所选地址
+    return http.patch(api.host + '/users/' + store.state.user.id, {
+      selectSite: siteObj
+    })
+      .then(res => {
+        if (res.data.id > 0){
+          // 更新本地的所选地址
+          // 更新本地user对象
+          store.commit('UPDATA_USER', res.data)
+          return { 'msg': '更新所选地址成功' }
+        } else {
+          return {'msg': '更新所选地址失败'}
+        }
+      })
+  },
+  // 更新地址信息
+  updataSite (store, siteObj) {
+    if (Number(siteObj.id) === Number(store.state.user.selectSite.id)) {
+      // 也需要更新用户所选择的地址信息
+      store.dispatch('changeSelectedSite', siteObj)
+    }
+    return http.put(api.host + '/sites/' + siteObj.id, siteObj)
+      .then(res => {
+        if (res.data.id > 0) {
+          // 更新本地地址信息
+          store.commit('UPDATA_SITE', res.data)
+          return {'msg': '更新地址信息成功'}
+        } else {
+          return {'msg': '更新地址信息失败'}
+        }
+      })
+  },
       //删除勾选的商品收藏
       delFavor(store,favors){
         function promiseDelFavors(){

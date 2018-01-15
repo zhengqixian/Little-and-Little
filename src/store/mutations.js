@@ -90,6 +90,34 @@ export default {
   SAVE_SITES (state, data) {
     state.sites = data
   },
+  // 更改所选城市
+  CHANGE_SELECTED_CITY (state, city) {
+    state.selectedCity = city
+  },
+  SAVE_SELECTED_SITE (state, site) {
+    state.selectedSite = site
+  },
+  SAVE_SELECTED_SITEOBJ (state, siteObj) {
+    state.selectedSite = siteObj.name
+    state.selectedX = siteObj.location.lng
+    state.selectedY = siteObj.location.lat
+  },
+  // 保存新建的地址对象
+  SAVE_SITE (state, siteObj) {
+    state.sites.push(siteObj)
+  },
+  // 更新用户对象(更新用户所选地址)
+  UPDATA_USER (state, user) {
+    state.user = user
+  },
+  // 更新地址信息
+  UPDATA_SITE (state, siteObj) {
+    for (let i = 0; i < state.sites.length; i++) {
+      if (state.sites[i].id === Number(siteObj.id)) {
+        state.sites[i] = siteObj
+      }
+    }
+  },
   CART_POS (state, cartPos) {
     state.cartPos = cartPos
   },
